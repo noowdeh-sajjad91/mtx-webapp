@@ -33,7 +33,10 @@ const schema = Yup.object().shape({
 const Login = () => {
   const router = useRouter()
   const dispatch = useDispatch()
-  const { isPending, mutate } = useTokenLogin(
+  const [showDialog, setShowDialog] = React.useState(false)
+  const [errorText, setErrorText] = React.useState({ title: "", code: "", message: "" })
+  const [showSwipeble, setShowSwipeble] = React.useState(false);
+  const { isPending, mutate, isError } = useTokenLogin(
     {
       onSuccess: (data: any) => {
         // dispatch(setGmailVerifey({ email: data.user_validator }))
@@ -42,6 +45,9 @@ const Login = () => {
       },
       onError: (error) => {
 
+        setShowSwipeble(true)
+        setShowDialog(true)
+        setErrorText({ title: error?.response?.data?.title, code: error?.response?.data?.code, message: error.response?.data?.messages[0]?.message })
         // setShowSwipeble(true)
         // setShowDialog(true)
         // setErrorText({ title: error?.response?.data?.title, code: error?.response?.data?.code })
@@ -72,7 +78,12 @@ const Login = () => {
   const { errors, touched, values, handleChange, handleSubmit } = formik;
 
 
+  const handleCloseError = () => {
+    setShowSwipeble(false)
+    setShowDialog(false)
+  }
 
+  
   return (
     <>
       <Box sx={{ position: "relative", height: "90vh" }}>
@@ -133,10 +144,30 @@ const Login = () => {
                 Forgot password?
               </MuiLink>
             </Box>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "3px" }}>
+              <Typography color='lightGray' variant='small'>Don`t have an account? </Typography>
+              <MuiLink component={Link} href={"/account/createAccount"} color="cyan" underline="none">
+                Sign up
+              </MuiLink>
+            </Box>
             <ButtonCustom type="submit">Login </ButtonCustom>
           </form>
         </Box>
       </SwipeableEdgeDrawer >
+      {
+        showSwipeble && <BackgroundGray></BackgroundGray>
+
+      }
+      {
+        isError && showDialog &&
+        <SwipeableEdgeDrawer>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "10px" }}>
+            <Typography variant="medium" color="black">{errorText.title}</Typography>
+            <Typography variant="xsmall" color="secoundryM">{errorText.message}</Typography>
+          </Box>
+          <ButtonCustom type="submit" onClick={() => handleCloseError()}>ok</ButtonCustom>
+        </SwipeableEdgeDrawer >
+      }
     </>
   )
 }
@@ -163,4 +194,14 @@ const SocialBox = styled(Box)(({ theme }) => ({
   borderRadius: "60px",
   padding: "12px"
 }))
+
+const BackgroundGray = styled(Box)({
+  width: "100%",
+  height: "100vh",
+  /* background: red, */
+  zIndex: 100,
+  position: "absolute",
+  top: 0,
+  backgroundColor: "rgba(0, 0, 0, 0.46)",
+})
 export default withAuthRedirect(Login)

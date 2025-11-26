@@ -149,7 +149,9 @@ const Verify = () => {
                             display: "flex",
                             justifyContent: 'space-between',
                             gap: "4px",
-                            paddingTop: "13vh"
+                            paddingTop: "13vh",
+                                marginBottom:'1.5rem'
+                            // height:"38px"
                         }}>
                             <MuiLink href={"/account"} component={ButtonCustomOutLine} type="submit" color="cyan" sx={{textDecoration:'none'}}>
                             Cancel
@@ -170,6 +172,7 @@ export const ButtonCustomOutLine = styled(Button)(({ theme }) => ({
     color: theme.palette.cyan.main,
     textTransform: "capitalize",
     width: "100%",
-    borderRadius: '60px'
+    borderRadius: '60px',
+    height:"38px"
 }))
 export default withAuthRedirect(Verify);

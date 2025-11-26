@@ -44,30 +44,35 @@ apiClient.interceptors.response.use(
         // مدیریت خطاهای مختلف
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            debugger
+
             const refereshToken = store.getState().reducer.user.currentUser.refershToken;
             console.log('refresh token ', refereshToken)
             if (refereshToken) {
-                debugger
+
                 try {
                     //Request new access token
                     const res = await axios.post(
                         "/api/token/refresh/", {
-                        refereshToken
+                        "refresh": refereshToken
                     }
                     );
-                    console.log('res refresh token=> ', res.data)
+                    debugger;
+                    console.log('res refresh token=======================> ', res.data)
+
                     //Save new tokens
                     store.dispatch(setToken({ token: res.data.access, refershToken: res.data.refresh }))
                     // Retry the original request with new token
 
                     originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
-                    debugger;
+
                     return apiClient(originalRequest);
                 } catch (refreshError) {
                     // Refresh token invalid, force logout or redirect to login
                     // Unauthorized - هدایت به صفحه لاگین
-                    // localStorage.removeItem('accessToken');
+                    
+
+
+
                     store.dispatch(logout())
                     window.location.href = '/account/login';
                 }

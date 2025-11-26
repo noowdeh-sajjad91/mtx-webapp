@@ -96,8 +96,10 @@ const userReducer = createSlice({
         },
         logout: (state) => {
             // پاک کردن همه stateهای مربوط به auth
-            state.currentUser.token = "";
-            state.currentUser.email = "";
+            state.currentUser.token ="";
+            state.currentUser.refershToken = "";
+            state.currentUser.tokenEx = "";
+            state.currentUser.refereshTokenEx = "";
         },
         startLogin: (state, action) => {
             state.loading = true;

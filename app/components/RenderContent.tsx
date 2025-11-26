@@ -16,11 +16,21 @@ import { useCountries, useGetActivityLevel, useGetFitnessGoal, useGetHealthCondi
 import dayjs, { Dayjs } from "dayjs";
 import { useAppSelector } from "@/Store/reducers";
 import { RootState } from "@/Store/store";
+import { useDispatch } from "react-redux";
+import { setProfileDetail } from "@/Store/reducers/user.reducer/user.reducer";
 
 // Yup schema to validate the form
 const schema = Yup.object().shape({
-    email: Yup.string().required().email("Please enter your email"),
-    password: Yup.string().required("Please enter your password").min(3),
+    birth_date: Yup.string().required("Please enter your birth_date"),
+    gender: Yup.string().required("Please enter your gender"),
+    country_id: Yup.string().required("Please enter your country_id"),
+    // phone_number: Yup.string().required("Please enter your phone_number"),
+    activity_level_id: Yup.string().required("Please enter your activity_level_id"),
+    health_condition_id: Yup.string().required("Please enter your health_condition_id"),
+    fitness_goal_id: Yup.string().required("Please enter your fitness_goal_id"),
+    height: Yup.string().required("Please enter your height"),
+    weight: Yup.string().required("Please enter your weight")
+
 });
 
 
@@ -47,13 +57,15 @@ type IActivityLevel = {
     description?: string
 }
 const RenderContent: React.FC<IRenderContent> = ({ type }) => {
-
+    const { data: profileDetails } = useGetProfileDetails()
+    const dispatch = useDispatch()
     const { mutate } = useProfile(
         {
             onSuccess: (data: any) => {
                 // dispatch(setGmailVerifey({ email: data.user_validator }))
                 // dispatch(setToken({ token: data?.access, refershToken: data?.refresh, tokenEx: data?.access_expires_at, refereshTokenEx: data?.refresh_expires_at }))
                 // router.push('/home');
+                dispatch(setProfileDetail({ ...profileDetails }))
             },
             onError: (error) => {
 
@@ -66,6 +78,7 @@ const RenderContent: React.FC<IRenderContent> = ({ type }) => {
     const { mutate: mutateHealthInfo } = useHealthInfo(
         {
             onSuccess: (data: any) => {
+                dispatch(setProfileDetail({ ...profileDetails }))
                 // dispatch(setGmailVerifey({ email: data.user_validator }))
                 // dispatch(setToken({ token: data?.access, refershToken: data?.refresh, tokenEx: data?.access_expires_at, refereshTokenEx: data?.refresh_expires_at }))
                 // router.push('/home');
@@ -95,24 +108,24 @@ const RenderContent: React.FC<IRenderContent> = ({ type }) => {
     const [selectedFitness, setSelectedFitnessValue] = React.useState<number | string>('');
     const [selectedHealth, setSelectedHealthValue] = React.useState<number | string>('');
 
-   const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(
-    profileDetailData?.profile?.birth_date ? dayjs(profileDetailData.profile.birth_date) : null
-);
+    const [selectedDate, setSelectedDate] = React.useState<Dayjs | null>(
+        profileDetailData?.profile?.birth_date ? dayjs(profileDetailData.profile.birth_date) : null
+    );
     const [formattedDate, setFormattedDate] = React.useState<string>('');
 
     //value weight && height
     const [weightValue, setWeightValue] = React.useState<string>("")
     const [heightValue, setHeightValue] = React.useState<string>("")
-    const handleDateChange = (date: Dayjs | null, formatted: string) => {
-        setSelectedDate(date);
-        setFormattedDate(formatted);
+    // const handleDateChange = (date: Dayjs | null, formatted: string) => {
+    //     setSelectedDate(date);
+    //     setFormattedDate(formatted);
 
-        // You can also directly use the date here for API calls, etc.
-        if (formatted) {
-            // Save to database or state management
-            //   saveDateToBackend(formatted);
-        }
-    };
+    //     // You can also directly use the date here for API calls, etc.
+    //     if (formatted) {
+    //         // Save to database or state management
+    //         //   saveDateToBackend(formatted);
+    //     }
+    // };
 
     //GET Query
     const { data: countries, isLoading, isError, isSuccess } = useCountries();
@@ -144,7 +157,7 @@ const RenderContent: React.FC<IRenderContent> = ({ type }) => {
 
     React.useEffect(() => {
         if (countries?.results && countries?.results.length > 0) {
-            setCountriesSelect(countries?.results.map((c:any) => ({ title: c.country_name, value: c.id, titleCode: c.country_code, numericCode: c.numeric_code })))
+            setCountriesSelect(countries?.results.map((c: any) => ({ title: c.country_name, value: c.id, titleCode: c.country_code, numericCode: c.numeric_code })))
         }
     }, [countries])
     React.useEffect(() => {
@@ -169,45 +182,85 @@ const RenderContent: React.FC<IRenderContent> = ({ type }) => {
 
         if (profileDetailData) {
             ///complale default value inputs
-            setSelectedGenderValue(profileDetailData?.profile?.gender)
-            setSelectedValue(profileDetailData?.profile?.country?.id)
-            setSelectedActivityValue(profileDetailData?.health_info?.activity_level?.id)
-            setSelectedFitnessValue(profileDetailData?.health_info?.fitness_goal?.id)
-            setSelectedHealthValue(profileDetailData?.health_info?.health_condition?.id)
-            setWeightValue(profileDetailData?.health_info?.weight?.toString())
-            setHeightValue(profileDetailData?.health_info?.height?.toString())
+            // setSelectedGenderValue(profileDetailData?.profile?.gender)
+            // setSelectedValue(profileDetailData?.profile?.country?.id)
+            // setSelectedActivityValue(profileDetailData?.health_info?.activity_level?.id)
+            // setSelectedFitnessValue(profileDetailData?.health_info?.fitness_goal?.id)
+            // setSelectedHealthValue(profileDetailData?.health_info?.health_condition?.id)
+            // setWeightValue(profileDetailData?.health_info?.weight?.toString())
+            // setHeightValue(profileDetailData?.health_info?.height?.toString())
+            formik.setValues({
+                birth_date: profileDetailData?.profile?.birth_date,
+                gender: profileDetailData?.profile?.gender,
+                country_id: profileDetailData?.profile?.country.id,
+                // phone_number: "",
+                activity_level_id: profileDetailData?.health_info?.activity_level.id,
+                health_condition_id: profileDetailData?.health_info?.health_condition.id,
+                fitness_goal_id: profileDetailData?.health_info?.fitness_goal.id,
+                height: profileDetailData?.health_info?.height?.toString(),
+                weight: profileDetailData?.health_info?.weight?.toString()
+            });
         }
     }, [profileDetailData])
 
 
 
     // Formik hook to handle the form state
-    // const formik = useFormik({
-    //     initialValues: {
-    //         birth_date: "",
-    //         gender: "",
-    //         country_id:"",
-    //     },
+    const formik = useFormik({
+        initialValues: {
+            birth_date: "",
+            gender: "",
+            country_id: "",
+            // phone_number: "",
+            activity_level_id: "",
+            health_condition_id: "",
+            fitness_goal_id: "",
+            height: "",
+            weight: ""
+        },
 
-    //     // Pass the Yup schema to validate the form
-    //     validationSchema: schema,
+        // Pass the Yup schema to validate the form
+        validationSchema: schema,
 
-    //     // Handle form submission
-    //     onSubmit: async ({ email, password }) => {
-    //         // Make a request to your backend to store the data
-    //         console.log(email);
+        // Handle form submission
+        onSubmit: async (values, { setSubmitting }) => {
+            console.log('✅✅✅ FORM SUBMITTED! ✅✅✅');
+            console.log('Form values:', values);
 
-    //     },
-    // });
+            mutate({
+                birth_date: values.birth_date,
+                country_id: values.country_id,
+                gender: values.gender,
+                phone_number: ""
+            });
 
-    // Destructure the formik object
-    // const { errors, touched, values, handleChange, handleSubmit } = formik;
+            mutateHealthInfo({
+                activity_level_id: values.activity_level_id,
+                fitness_goal_id: values.fitness_goal_id,
+                health_condition_id: values.health_condition_id,
+                weight: +values.weight,
+                height: +values.height
+            });
+
+            setSubmitting(false);
+        },
+    });
 
 
+    //Destructure the formik object
+    const { errors, touched, values, handleChange, handleSubmit, setFieldValue, setFieldTouched } = formik;
 
-    // DEBUG: see what's happening
-    // console.log("values:", values);
-    // console.log("errors:", errors);
+    // Add this useEffect to see validation errors in real-time
+    React.useEffect(() => {
+        console.log('🔄 Form validation state:');
+        console.log('Errors:', errors);
+        console.log('Touched:', touched);
+        console.log('Is form valid?', Object.keys(errors).length === 0);
+    }, [errors, touched]);
+
+    //DEBUG: see what's happening
+    console.log("values:", values);
+    console.log("errors:", errors);
 
     const handleChangeHeight = (e: any) => {
         if (e.target.value.length < 4) {
@@ -223,27 +276,44 @@ const RenderContent: React.FC<IRenderContent> = ({ type }) => {
         }
     }
 
-    const handleSubmit = (e: any) => {
-        e.preventDefault()
-        mutate({
-            birth_date: formattedDate,
-            country_id: selectedValue?.toString(),
-            gender: selectedGender?.toString(),
-            phone_number: ""
+    // const handleSubmit = (e: any) => {
+    //     e.preventDefault()
+    //     mutate({
+    //         birth_date: formattedDate,
+    //         country_id: selectedValue?.toString(),
+    //         gender: selectedGender?.toString(),
+    //         phone_number: ""
 
-        })
-        mutateHealthInfo(
-            {
-                activity_level_id: selectedActivity?.toString(),
-                fitness_goal_id: selectedFitness?.toString(),
-                health_condition_id: selectedHealth?.toString(),
-                weight: +weightValue,
-                height: +heightValue
+    //     })
+    //     mutateHealthInfo(
+    //         {
+    //             activity_level_id: selectedActivity?.toString(),
+    //             fitness_goal_id: selectedFitness?.toString(),
+    //             health_condition_id: selectedHealth?.toString(),
+    //             weight: +weightValue,
+    //             height: +heightValue
 
-            })
-    }
+    //         })
+    // }
 
 
+    /////////////////////////////////////////////////
+    // Handle date change for DatePicker WITH FORMIK        
+    const handleDateChange = (dateString: string) => {
+        setFieldValue('birth_date', dateString);
+    };
+
+    // Handle date blur for DatePicker
+    const handleDateBlur = () => {
+        setFieldTouched('birth_date', true);
+    };
+    const handleSelectChange = (fieldName: string) => (value: string) => {
+        setFieldValue(fieldName, value);
+    };
+
+    const handleSelectBlur = (fieldName: string) => () => {
+        setFieldTouched(fieldName, true);
+    };
     return (
         <div>
             {(() => {
@@ -267,51 +337,65 @@ const RenderContent: React.FC<IRenderContent> = ({ type }) => {
                                 >
                                     <DatePickerField
                                         onChange={handleDateChange}
-                                        value={selectedDate}
-                                    // error={errors.email}
-                                    // touched={touched.email}
+                                        onBlur={handleDateBlur}
+                                        value={values.birth_date}
+                                        error={errors.birth_date}
+                                        touched={touched.birth_date}
                                     />
                                     <SelectField
                                         label="select your gender"
+
                                         items={[{ title: "Male", value: "M" },
                                         { title: "Fmale", value: "F" }]}
-                                        value={selectedGender?.toString()}
-                                        onChange={handleGenderChange}
-                                    // error={errors.email}
-                                    // touched={touched.email}
+                                        value={values.gender}
+                                        name="gender"
+                                        onChange={handleSelectChange('gender')}
+                                        onBlur={handleSelectBlur('gender')}
+
+                                        error={errors.gender}
+                                        touched={touched.gender}
                                     />
                                     <SelectField
                                         label="select your country"
                                         items={countriesSelect ?? []}
-                                        value={selectedValue?.toString()}
-                                        onChange={handleCountryChange}
-                                    // error={errors.email}
-                                    // touched={touched.email}
+                                        value={values.country_id}
+                                        name="country_id"
+                                        onChange={handleSelectChange('country_id')}
+                                        onBlur={handleSelectBlur('country_id')}
+                                        error={errors.country_id}
+                                        touched={touched.country_id}
                                     />
 
                                     <SelectField
                                         label="Activity Level"
                                         items={activityLevelSelect ?? []}
-                                        value={selectedActivity?.toString()}
-                                        onChange={handleAtivityChange}
-                                    // error={errors.email}
-                                    // touched={touched.email}
+                                        value={values.activity_level_id}
+                                        name="activity_level_id"
+                                        onChange={handleSelectChange('activity_level_id')}
+                                        onBlur={handleSelectBlur('activity_level_id')}
+                                        error={errors.activity_level_id}
+                                        touched={touched.activity_level_id}
                                     />
                                     <SelectField
                                         label="Fitness Level"
                                         items={fitnessSelect ?? []}
-                                        value={selectedFitness?.toString()}
-                                        onChange={handleFitnessChange}
-                                    // error={errors.email}
-                                    // touched={touched.email}
+                                        name="fitness_goal_id"
+                                        onChange={handleSelectChange('fitness_goal_id')}
+                                        onBlur={handleSelectBlur('fitness_goal_id')}
+                                        value={values.fitness_goal_id}
+
+                                        error={errors.fitness_goal_id}
+                                        touched={touched.fitness_goal_id}
                                     />
                                     <SelectField
                                         label="Health Conditions"
                                         items={healthSelect ?? []}
-                                        value={selectedHealth?.toString()}
-                                        onChange={handleHealthConditionChange}
-                                    // error={errors.email}
-                                    // touched={touched.email}
+                                        value={values.health_condition_id}
+                                        name="health_condition_id"
+                                        onChange={handleSelectChange('health_condition_id')}
+                                        onBlur={handleSelectBlur('health_condition_id')}
+                                        error={errors.health_condition_id}
+                                        touched={touched.health_condition_id}
                                     />
 
                                     <Box>
@@ -320,27 +404,27 @@ const RenderContent: React.FC<IRenderContent> = ({ type }) => {
                                                 <TextFieldInput
                                                     fullWidth
 
-                                                    value={heightValue}
-                                                    handleChange={handleChangeHeight}
+                                                    value={values.height}
+                                                    handleChange={handleChange}
                                                     type="number"
                                                     name="height"
                                                     label="Height (Cm)"
                                                     style={{ border: '1px solid #727272', borderRadius: "5px" }}
-                                                // error={errors.email}
-                                                // touched={touched.email}
+                                                    error={errors.height}
+                                                    touched={touched.height}
                                                 />
                                             </Grid>
                                             <Grid size={6}>
                                                 <TextFieldInput
-                                                    value={weightValue}
-                                                    handleChange={handleChangeWeight}
+                                                    value={values.weight}
+                                                    handleChange={handleChange}
                                                     type="number"
                                                     name="weight"
                                                     fullWidth
                                                     label="Weight (Kg)"
                                                     style={{ border: '1px solid #727272', borderRadius: "5px" }}
-                                                // error={errors.email}
-                                                // touched={touched.email}
+                                                    error={errors.weight}
+                                                    touched={touched.weight}
                                                 />
                                             </Grid>
                                         </Grid>

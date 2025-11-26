@@ -1,5 +1,5 @@
 "use client"
-import { Container, Typography, Box } from "@mui/material"
+import { Container, Typography, Box, styled } from "@mui/material"
 import Image from "next/image"
 import TabCustomize from "../components/TabCustomize"
 import RenderContent from "../components/RenderContent"
@@ -9,7 +9,7 @@ import { useDispatch, UseDispatch } from "react-redux"
 import { logout } from "@/Store/reducers/user.reducer/user.reducer"
 import { useRouter } from "next/navigation"
 import { useCountries } from "@/api/accounts"
-import { log } from "console"
+
 
 type ICountries = {
     country_code: string
@@ -23,14 +23,17 @@ const Profile = () => {
 
     const [showMenu, setShowMenu] = React.useState(false);
     const dispatch = useDispatch();
+    const [showSwipeble, setShowSwipeble] = React.useState(false);
     const [countriesItems, setCountriesItems] = React.useState<ICountries[]>()
     const router = useRouter()
 
     const handleShowmenu = () => {
         setShowMenu(true)
+        setShowSwipeble(true)
     }
     const handleClosemenu = () => {
         setShowMenu(false)
+        setShowSwipeble(false)
     }
 
     const handleLogout = () => {
@@ -131,10 +134,24 @@ const Profile = () => {
 
                     : null
             }
+            {
+                showSwipeble && <BackgroundGray></BackgroundGray>
+
+            }
 
         </>
     )
 }
 
+
+const BackgroundGray = styled(Box)({
+    width: "100%",
+    height: "100vh",
+    /* background: red, */
+    zIndex: 99,
+    position: "absolute",
+    top: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.46)",
+})
 
 export default Profile 
