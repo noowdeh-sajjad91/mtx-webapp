@@ -44,9 +44,12 @@ const data = {
     },
   ],
 };
+
 const DoughnutChart = ({ value }:any) => {
+  
   return (
     <div style={{ width: "100%", height: "86px", position: "relative" }}>
+ 
       <Doughnut
         data={data}
         options={{
@@ -57,8 +60,8 @@ const DoughnutChart = ({ value }:any) => {
             centerText: {
               ...options.plugins.centerText,
               text: `50%`,  // 🔥 dynamic value here
-            },
-          },
+            } ,
+          } as any,
         }}
       />
     </div>

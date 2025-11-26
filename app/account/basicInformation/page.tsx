@@ -77,8 +77,8 @@ const BasicIformation = () => {
                         method="POST"
                     >
 
-                        <DatePickerField />
-                        <SelectField />
+                        {/* <DatePickerField />
+                        <SelectField /> */}
                         <Box>
                             <Grid container spacing={2}>
                                 <Grid size={6}>

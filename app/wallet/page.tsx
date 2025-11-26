@@ -112,7 +112,7 @@ const BoxClaim = styled(Box)(({ theme }) => ({
 }));
 
 
-export const ButtonBlue = styled(Button)(({ theme }) => ({
+ const ButtonBlue = styled(Button)(({ theme }) => ({
     backgroundColor: theme.palette.blue.main,
     padding: "9px",
     textAlign: 'center',

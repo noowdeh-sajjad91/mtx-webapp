@@ -31,10 +31,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  notContainer
 }: Readonly<{
   children: React.ReactNode;
-  notContainer?: boolean
 }>) {
 
   

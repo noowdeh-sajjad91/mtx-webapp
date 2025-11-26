@@ -33,7 +33,7 @@ const OtpInput: React.FC<OtpInputProps> = ({ length = 6, value, onChange }) => {
         }
     };
 
-    const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (index: number, e: any) => {
         if (e.key === "Backspace") {
             e.preventDefault();
 

@@ -14,10 +14,10 @@ import {
 type TimerPlayerProps = {
   /** Total target value (e.g. steps or meters) */
   totalDistance?: number; // default 3000
-
+  durationSec?: any
   /** Number of segments in the stepper (e.g. 4) */
   steps?: number;
-
+  autoStart?: boolean;
   /** Is the counter currently running? (controlled from parent) */
   running: boolean;
 
@@ -93,8 +93,8 @@ const TimerPlayer: React.FC<TimerPlayerProps> = ({
     !running && count === 0
       ? 0
       : totalSteps === 0
-      ? 0
-      : Math.min(totalSteps, Math.max(1, Math.ceil(rawStep)));
+        ? 0
+        : Math.min(totalSteps, Math.max(1, Math.ceil(rawStep)));
 
   return (
     <Box
@@ -122,8 +122,8 @@ const TimerPlayer: React.FC<TimerPlayerProps> = ({
           {running
             ? "Pause"
             : isFinished
-            ? "Restart"
-            : "Start Walking"}
+              ? "Restart"
+              : "Start Walking"}
         </ButtonDayily>
       </Box>
 

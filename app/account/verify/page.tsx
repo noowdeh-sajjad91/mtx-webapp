@@ -166,7 +166,7 @@ const Verify = () => {
     )
 }
 
-export const ButtonCustomOutLine = styled(Button)(({ theme }) => ({
+ const ButtonCustomOutLine = styled(Button)(({ theme }) => ({
 
     border: `1px solid ${theme.palette.cyan.main}`,
     color: theme.palette.cyan.main,
