@@ -13,11 +13,12 @@ import { setProfileDetail } from "@/Store/reducers/user.reducer/user.reducer";
 import { useGetProfileDetails } from "@/api/accounts";
 import { useAppSelector } from "@/Store/reducers";
 import { RootState } from "@/Store/store";
-
+import { useRouter } from "next/navigation";
 const Home = () => {
 
     const controls = useAnimation();
     const dispatch = useDispatch();
+    const router = useRouter();
     const {data:profileDetails} = useGetProfileDetails()
     const profileDetailData = useAppSelector((state:RootState)=>state.reducer.user.profileDetail)
     React.useEffect(() => {
@@ -32,7 +33,11 @@ const Home = () => {
 
     React.useEffect(() => {
         if (profileDetails && profileDetails !== undefined) {
+            if(profileDetails?.has_complete_profile == false){
+                     router.push("/profile")
+            }
           dispatch(setProfileDetail({...profileDetails}))
+
         }
     }, [profileDetails])
 

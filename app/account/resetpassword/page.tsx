@@ -13,7 +13,7 @@ import MuiLink from "@mui/material/Link";
 import Link from "next/link"
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useRegister } from "@/api/accounts"
+import { useChangePassword, useRegister } from "@/api/accounts"
 import { useAppSelector } from "@/Store/reducers"
 import { RootState } from "@/Store/store"
 import { setToken } from "@/Store/reducers/user.reducer/user.reducer"
@@ -22,10 +22,7 @@ import { withAuthRedirect } from "@/app/components/withAuthRedirect"
 
 // Yup schema to validate the form
 const schema = Yup.object().shape({
-    // username: Yup.string().required("Please enter your full name"),
-    first_name: Yup.string().required("Please enter your first_name"),
-    last_name: Yup.string().required("Please enter your last_name"),
-    // email: Yup.string().required().email("Please enter your email"),
+
     password: Yup.string()
         .required("Please enter your password")
         .min(8, "At least 8 characters")
@@ -38,8 +35,6 @@ const schema = Yup.object().shape({
         .matches(/^(?=.*\d)/, "Password must contain at least one number")
         .matches(/^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/, "Must contain at least one special character:@#"),
 
-
-
     repeatPassword: Yup.string()
         .required("Please enter your repeatPassword")
         .oneOf([Yup.ref('password')], "repeated password matches")
@@ -47,15 +42,14 @@ const schema = Yup.object().shape({
     // password: Yup.string().required("Please enter your password").min(3),
 });
 
-const Register = () => {
+const ResetPassword = () => {
     // Formik hook to handle the form state
     const router = useRouter();
     const dispatch = useDispatch()
-    const { mutateAsync, isSuccess, isError } = useRegister(
+    const { mutateAsync, isSuccess, isError } = useChangePassword(
         {
             onSuccess: (data: any) => {
-                dispatch(setToken({ token: data?.access }))
-                router.push('/profile');
+                router.push('/account/login');
             },
             onError: (error) => {
                 console.error('Error:', error);
@@ -67,9 +61,6 @@ const Register = () => {
 
     const formik = useFormik({
         initialValues: {
-            // username: "",
-            first_name: "",
-            last_name: "",
             email: "",
             password: "",
             repeatPassword: ""
@@ -80,10 +71,10 @@ const Register = () => {
         validationSchema: schema,
 
         // Handle form submission
-        onSubmit: async ({ first_name, last_name, password }) => {
+        onSubmit: async ({ password }) => {
             // Make a request to your backend to store the data
             // console.log(email);
-            mutateAsync({ first_name: first_name, last_name: last_name, email: email, password: password })
+            mutateAsync({  user_validator: email, new_password: password })
         },
     });
 
@@ -119,7 +110,7 @@ const Register = () => {
                         <Image src={"/icons/back.svg"} width={20} height={20} alt='back' />
                     </Box>
                 </Link>
-                <Typography color='black' variant='xtraSmall' component={"h3"} sx={{ marginBottom: "20px" }}>Create an account</Typography>
+                <Typography color='black' variant='xtraSmall' component={"h3"} sx={{ marginBottom: "20px" }}>Reset Passowrd</Typography>
                 <Box sx={{
                     display: "flex",
                     flexDirection: "column",
@@ -133,36 +124,6 @@ const Register = () => {
                         onSubmit={handleSubmit}
                         method="POST"
                     >
-                        <TextFieldInput
-                            value={values.first_name}
-                            type="text"
-                            name="first_name"
-                            fullWidth={true}
-                            handleChange={handleChange}
-                            label="Enter your first name"
-                            error={errors.first_name}
-                            touched={touched.first_name}
-                        />
-                        <TextFieldInput
-                            value={values.last_name}
-                            type="text"
-                            name="last_name"
-                            fullWidth={true}
-                            handleChange={handleChange}
-                            label="Enter your last name"
-                            error={errors.last_name}
-                            touched={touched.last_name}
-                        />
-                        {/* <TextFieldInput
-                            value={values.email}
-                            handleChange={handleChange}
-                            type="email"
-                            name="email"
-                            fullWidth
-                            label="Enter email address"
-                            error={errors.email}
-                            touched={touched.email}
-                        /> */}
                         <PasswordField
                             fullWidth
                             label="Enter your password"
@@ -181,7 +142,7 @@ const Register = () => {
                             error={errors.repeatPassword}
                             touched={touched.repeatPassword}
                         />
-                        <ButtonCustom type="submit">Sign In</ButtonCustom>
+                        <ButtonCustom type="submit">Reset password</ButtonCustom>
                     </form>
                     <Typography variant="small" color="lightGray" sx={{ textAlign: 'center' }}>
                         By creating an account, you agree to our <MuiLink component={Link} href={"#"} color="black.main" underline="none">Terms of Service</MuiLink> and <MuiLink component={Link} href={"#"} color="black.main" underline="none">Privacy Policy</MuiLink>
@@ -214,4 +175,4 @@ const SocialBox = styled(Box)(({ theme }) => ({
     borderRadius: "60px",
     padding: "12px"
 }))
-export default withAuthRedirect(Register)
+export default withAuthRedirect(ResetPassword)

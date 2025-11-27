@@ -28,7 +28,8 @@ const MoveMentBox: React.FC<IMoveMentBox> = ({ handdleShowSwipeable, title, disc
                 gap: "4px"
             }}>
                 <Box sx={{
-                    background:"#b5b0b0"
+                    // background:"#b5b0b0",
+                    filter:"contrast(0.5)"
                 }}>
                     {
                         <Image src={icon !== undefined && icon} width={30} height={30} alt='mevement' />

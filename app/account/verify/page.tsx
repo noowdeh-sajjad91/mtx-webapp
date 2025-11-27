@@ -1,14 +1,14 @@
 
 "use client"
 import React from "react"
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import SwipeableEdgeDrawer from "../../components/SwipeableDrawer"
 import { Box, Button, styled, Typography } from "@mui/material"
 import Image from "next/image"
 import { motion, useAnimation } from 'framer-motion'
 import { ButtonCustom } from "@/app/(site)/components/Swiper"
 import OtpInput from "@/app/components/OtpField"
-import { useVerifyCode } from "@/api/accounts"
+import { useForgetPasswordSendCode, useForgetPasswordVerifyCode, useVerifyCode } from "@/api/accounts"
 import { useSelector } from "react-redux"
 import { useAppSelector } from "@/Store/reducers"
 import { RootState } from "@/Store/store"
@@ -17,8 +17,6 @@ import Link from "next/link"
 import MuiLink from "@mui/material/Link";
 import { withAuthRedirect } from "@/app/components/withAuthRedirect"
 
-
-
 const Verify = () => {
 
     const [code, setCode] = React.useState("");
@@ -26,11 +24,22 @@ const Verify = () => {
 
     const [timeLeft, setTimeLeft] = React.useState(45);
     const [isActive, setIsActive] = React.useState(false)
+    const searchParams = useSearchParams();
+    const forgetpassword = searchParams.get('forgetpassword')
+
+    React.useEffect(() => {
+        console.log('forgetpas', forgetpassword)
+    }, [forgetpassword])
+
     const { mutateAsync, isError, isPending } = useVerifyCode(
         {
             onSuccess: (data: any) => {
+                if (forgetpassword) {
+                    router.push('/account/resetpassword');
+                } else {
+                    router.push('/account/registeraccount');
+                }
 
-                router.push('/account/registeraccount');
             },
             onError: (error) => {
                 console.error('Error:', error);
@@ -38,10 +47,34 @@ const Verify = () => {
             }
         }
     );
-     const { mutateAsync:mutateSendOtp} = useSendOtp(
+    const { mutateAsync: mutateSendOtp } = useSendOtp(
         {
             onSuccess: (data: any) => {
 
+                // router.push('/account/registeraccount');
+            },
+            onError: (error) => {
+                // console.error('Error:', error);
+                // console.error('error', error);
+            }
+        }
+    );
+    const {mutate:mutateSendCodeForaget} = useForgetPasswordSendCode(
+        {
+            onSuccess: (data: any) => {
+
+                // router.push('/account/registeraccount');
+            },
+            onError: (error) => {
+                // console.error('Error:', error);
+                // console.error('error', error);
+            }
+        }
+    );
+    const { mutate: mutateForgetVerifyCode } = useForgetPasswordVerifyCode(
+        {
+            onSuccess: (data: any) => {
+                router.push('/account/resetpassword');
                 // router.push('/account/registeraccount');
             },
             onError: (error) => {
@@ -83,18 +116,32 @@ const Verify = () => {
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        mutateAsync({
-            otp_code: code,
-            user_validator: email
+        if (forgetpassword) {
+            mutateForgetVerifyCode({
+                otp_code: code,
+                user_validator: email
+            })
 
-        })
+        } else {
+            mutateAsync({
+                otp_code: code,
+                user_validator: email
+
+            })
+
+        }
     };
 
-    const handleSubmitResend =()=>{
-       if(timeLeft === 0){
-        startTimer()
-         mutateSendOtp({ user_validator: email })
-       }
+    const handleSubmitResend = () => {
+        if (timeLeft === 0) {
+            startTimer()
+            if(forgetpassword){
+                mutateSendCodeForaget({user_validator:email})
+            }else{
+                mutateSendOtp({ user_validator: email })
+
+            }
+        }
     };
 
     return (
@@ -137,24 +184,24 @@ const Verify = () => {
                             display: "flex",
                             flexDirection: "column"
                         }}>
-                            <Typography color="lightGray" variant="small">Didn’t get the code? 
-                                <Typography color="lightGray" variant="small" sx={{textDecoration:"underline"}} onClick={handleSubmitResend}>Resend</Typography>
+                            <Typography color="lightGray" variant="small">Didn’t get the code?
+                                <Typography color="lightGray" variant="small" sx={{ textDecoration: "underline" }} onClick={handleSubmitResend}>Resend</Typography>
                             </Typography>
                             {
                                 timeLeft !== 0 && <Typography color="lightGray" variant="xmedium">You can request a new one in {formatTime(timeLeft)}</Typography>
                             }
-                            
+
                         </Box>
                         <Box sx={{
                             display: "flex",
                             justifyContent: 'space-between',
                             gap: "4px",
                             paddingTop: "13vh",
-                                marginBottom:'1.5rem'
+                            marginBottom: '1.5rem'
                             // height:"38px"
                         }}>
-                            <MuiLink href={"/account"} component={ButtonCustomOutLine} type="submit" color="cyan" sx={{textDecoration:'none'}}>
-                            Cancel
+                            <MuiLink href={"/account"} component={ButtonCustomOutLine} type="submit" color="cyan" sx={{ textDecoration: 'none' }}>
+                                Cancel
                             </MuiLink>
                             <ButtonCustom type="submit">Verify</ButtonCustom>
                         </Box>
@@ -166,13 +213,13 @@ const Verify = () => {
     )
 }
 
- const ButtonCustomOutLine = styled(Button)(({ theme }) => ({
+const ButtonCustomOutLine = styled(Button)(({ theme }) => ({
 
     border: `1px solid ${theme.palette.cyan.main}`,
     color: theme.palette.cyan.main,
     textTransform: "capitalize",
     width: "100%",
     borderRadius: '60px',
-    height:"38px"
+    height: "38px"
 }))
 export default withAuthRedirect(Verify);

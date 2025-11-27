@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/axios-config';
+import { FieldChangeHandlerContext } from '@mui/x-date-pickers/internals';
 
 
 interface Post {
@@ -93,6 +94,65 @@ export const useHealthInfo = (options: UseSendOtpOptions) => {
     });
 };
 
+interface forgetPassowrdSendCodePostData {
+    user_validator: string,
+}
+
+export const useForgetPasswordSendCode = (options: UseSendOtpOptions) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (postData: forgetPassowrdSendCodePostData) => {
+            const response = await api.post('v1/accounts/forget-password/send-code/', postData);
+            return response.data;
+        },
+        onSuccess: options?.onSuccess,
+        onError: options?.onError
+    });
+};
+
+interface changePasswordPostData {
+    user_validator: string,
+    new_password: string
+}
+
+
+export const useChangePassword = (options: UseSendOtpOptions) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (postData: changePasswordPostData) => {
+            const response = await api.post('v1/accounts/change-password/', postData);
+            return response.data;
+        },
+        onSuccess: options?.onSuccess,
+        onError: options?.onError
+    });
+};
+
+
+
+
+interface forgetPassowrdVerifyCodePostData {
+    otp_code: string,
+    user_validator: string
+
+}
+
+export const useForgetPasswordVerifyCode = (options: UseSendOtpOptions) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (postData: forgetPassowrdVerifyCodePostData) => {
+            const response = await api.post('v1/accounts/forget-password/verify-code/', postData);
+            return response.data;
+        },
+        onSuccess: options?.onSuccess,
+        onError: options?.onError
+    });
+};
+
+
+
+
+
 
 
 
@@ -147,7 +207,7 @@ export const useGetHealthConditioan = () => {
     });
 };
 
-export const useGetProfileDetails= () => {
+export const useGetProfileDetails = () => {
     return useQuery({
         queryKey: ['details'],
         queryFn: async () => {

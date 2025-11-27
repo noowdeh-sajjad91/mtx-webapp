@@ -16,32 +16,34 @@ import CheckBoxField from "@/app/components/Inputs/CheckBoxField"
 import { useTokenLogin } from "@/api/token"
 import { useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
-import { setToken } from "@/Store/reducers/user.reducer/user.reducer"
+import { setGmailVerify, setToken } from "@/Store/reducers/user.reducer/user.reducer"
 import { withAuthRedirect } from "@/app/components/withAuthRedirect"
+import { useForgetPasswordSendCode } from "@/api/accounts"
 // Yup schema to validate the form
 const schema = Yup.object().shape({
   email: Yup.string().required().email("Please enter your email"),
-  password: Yup.string()
-    .required("Please enter your password")
-    .min(8, "At least 8 characters")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])/,
-      "Password must contain both lowercase and uppercase letters"
-    ),
+  // password: Yup.string()
+  //   .required("Please enter your password")
+  //   .min(8, "At least 8 characters")
+  //   .matches(
+  //     /^(?=.*[a-z])(?=.*[A-Z])/,
+  //     "Password must contain both lowercase and uppercase letters"
+  //   ),
 });
 
-const Login = () => {
+const SendCode = () => {
   const router = useRouter()
   const dispatch = useDispatch()
+
   const [showDialog, setShowDialog] = React.useState(false)
   const [errorText, setErrorText] = React.useState({ title: "", code: "", message: "" })
   const [showSwipeble, setShowSwipeble] = React.useState(false);
-  const { isPending, mutate, isError } = useTokenLogin(
+  const { isPending, mutate, isError } = useForgetPasswordSendCode(
     {
       onSuccess: (data: any) => {
-        // dispatch(setGmailVerifey({ email: data.user_validator }))
-        dispatch(setToken({ token: data?.access, refershToken: data?.refresh, tokenEx: data?.access_expires_at, refereshTokenEx: data?.refresh_expires_at }))
-        router.push('/home');
+        dispatch(setGmailVerify({ email: data.user_validator }))
+        // dispatch(setToken({ token: data?.access, refershToken: data?.refresh, tokenEx: data?.access_expires_at, refereshTokenEx: data?.refresh_expires_at }))
+        router.push('/account/verify?forgetpassword=true');
       },
       onError: (error) => {
 
@@ -55,16 +57,16 @@ const Login = () => {
     }
   )
 
-  const handleSubmitCallback = React.useCallback(async (values: { email: string, password: string }) => {
+  const handleSubmitCallback = React.useCallback(async (values: { email: string}) => {
     if (isPending) return;
 
-    mutate({ email: values.email, password: values.password });
+    mutate({ user_validator: values.email});
   }, [mutate, isPending])
   // Formik hook to handle the form state
   const formik = useFormik({
     initialValues: {
       email: "",
-      password: "",
+      // password: "",
     },
 
     // Pass the Yup schema to validate the form
@@ -98,8 +100,8 @@ const Login = () => {
 
 
       <SwipeableEdgeDrawer>
-        <Typography color='black' variant='xtraSmall' component={"h3"} sx={{ marginBottom: "5px" }}>Login to account</Typography>
-        <Typography variant="small" color="lightGray" sx={{ marginBottom: "10px" }}>Please enter your information to acces your account</Typography>
+        <Typography color='black' variant='xtraSmall' component={"h3"} sx={{ marginBottom: "5px" }}>Forget password</Typography>
+        <Typography variant="small" color="lightGray" sx={{ marginBottom: "10px" }}>Don`t worry! it happens. lease Enter the email associated with your account.</Typography>
         <Box sx={{
           display: "flex",
           flexDirection: "column",
@@ -127,30 +129,22 @@ const Login = () => {
               touched={touched.email}
 
             />
-            <PasswordField
-              fullWidth
-              label="Enter password"
-              name="password"
-              value={values.password}
-              onChange={handleChange}
-              error={errors.password}
-              touched={touched.password}
-            />
-            <Box sx={{ display: 'flex', alignItems: "center", justifyContent: "space-between" }}>
+
+            {/* <Box sx={{ display: 'flex', alignItems: "center", justifyContent: "space-between" }}>
               <CheckBoxField
                 lable="Remember me"
               />
-              <MuiLink component={Link} href={"/account/forgetpassword"} color="cyan" underline="none">
+              <MuiLink component={Link} href={"#"} color="cyan" underline="none">
                 Forgot password?
               </MuiLink>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "3px" }}>
-              <Typography color='lightGray' variant='small'>Don`t have an account? </Typography>
-              <MuiLink component={Link} href={"/account/createAccount"} color="cyan" underline="none">
-                Sign up
+            </Box> */}
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "3px" ,marginBottom:"5rem"}}>
+              <Typography color='lightGray' variant='small'>Remember password </Typography>
+              <MuiLink component={Link} href={"/account/login"} color="cyan" underline="none">
+                Log in
               </MuiLink>
             </Box>
-            <ButtonCustom type="submit">Login </ButtonCustom>
+            <ButtonCustom type="submit">Send Code </ButtonCustom>
           </form>
         </Box>
       </SwipeableEdgeDrawer >
@@ -204,4 +198,4 @@ const BackgroundGray = styled(Box)({
   top: 0,
   backgroundColor: "rgba(0, 0, 0, 0.46)",
 })
-export default withAuthRedirect(Login)
+export default withAuthRedirect(SendCode)
